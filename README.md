@@ -74,7 +74,73 @@
 
 ---
 
-## 🚀 Quick Setup & Installation
+## 🐳 Docker Setup (Recommended)
+
+Run the complete JewelERP stack (PHP 8.4-FPM, Nginx, MySQL 8.4, and Redis) containerized without installing local PHP or database services.
+
+### Prerequisites
+- [Docker](https://docs.docker.com/get-docker/) & Docker Compose v2+ installed and running.
+
+### 1. Environment Configuration
+Copy the Docker-tailored environment configuration:
+```bash
+cp .env.docker.example .env
+```
+*(Optionally adjust `APP_PORT`, `FORWARD_DB_PORT`, or passwords in `.env` if desired).*
+
+### 2. Build and Start the Containers
+```bash
+docker compose up -d --build
+```
+This starts:
+- **`app`**: PHP 8.4-FPM runtime with all required extensions (`pdo_mysql`, `bcmath`, `gd`, `intl`, `pcntl`, `redis`, `opcache`).
+- **`web`**: Nginx web server bound to port `8000` (http://localhost:8000).
+- **`db`**: MySQL 8.4 database with health checks and persistent volume (`jewelerp-db-data`).
+- **`redis`**: Redis 7 cache/session/queue backend.
+- **`queue`**: Background worker running `php artisan queue:work`.
+
+### 3. Initialize Application Dependencies
+```bash
+# Install PHP dependencies
+docker compose exec app composer install
+
+# Install Node dependencies & build frontend assets
+docker compose exec app npm install
+docker compose exec app npm run build
+
+# Generate encryption key
+docker compose exec app php artisan key:generate
+```
+
+### 4. Run Migrations & Seed Sample Data
+```bash
+docker compose exec app php artisan migrate --seed
+```
+
+### 5. Access the Application
+Open **[http://localhost:8000](http://localhost:8000)** in your browser and sign in using the demo credentials below.
+
+### Helpful Docker Commands
+```bash
+# View live container logs
+docker compose logs -f
+
+# Run test suite inside container
+docker compose exec app php artisan test
+
+# Open a shell inside the PHP app container
+docker compose exec app bash
+
+# Stop all containers
+docker compose down
+
+# Stop all containers and wipe volumes (reset DB)
+docker compose down -v
+```
+
+---
+
+## 🚀 Manual / Local Setup & Installation
 
 ### Prerequisites
 - PHP 8.2 or higher
