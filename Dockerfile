@@ -34,6 +34,8 @@ RUN apk add --no-cache \
     curl \
     git \
     unzip \
+    nodejs \
+    npm \
     libzip-dev \
     icu-dev \
     libpng-dev \

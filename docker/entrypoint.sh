@@ -34,7 +34,18 @@ fi
 # Inform if vendor directory is missing
 if [ ! -d /var/www/html/vendor ]; then
     echo "[JewelERP Docker] Notice: vendor/ directory not found in /var/www/html."
-    echo "[JewelERP Docker] Run: docker compose run --rm app composer install"
+    echo "[JewelERP Docker] Run: docker compose exec app composer install"
+fi
+
+# Check if Vite build assets are missing
+if [ ! -f /var/www/html/public/build/manifest.json ]; then
+    if [ -d /var/www/html/node_modules ]; then
+        echo "[JewelERP Docker] Compiling frontend assets via npm run build..."
+        npm run build || true
+    else
+        echo "[JewelERP Docker] Notice: public/build/manifest.json not found."
+        echo "[JewelERP Docker] Run: docker compose exec app npm install && docker compose exec app npm run build"
+    fi
 fi
 
 exec "$@"
